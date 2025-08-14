@@ -1,19 +1,21 @@
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open('student-stars-cache').then(cache => {
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open('star-cache-v1').then((cache) => {
       return cache.addAll([
         './',
         './index.html',
-        './manifest.json'
+        './manifest.json',
+        './icons/icon-192x192.png',
+        './icons/icon-512x512.png'
       ]);
     })
   );
 });
 
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
     })
   );
 });
