@@ -1,112 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>🌟 Student Stars 🌟</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffeb3b">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512x512.png">
-  <style>
-    body {
-      font-family: Comic Sans MS, sans-serif;
-      background-color: #fff8e1;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 { color: #ff5722; }
-    table {
-      border-collapse: collapse;
-      margin: auto;
-      width: 100%;
-      max-width: 800px;
-      background-color: #ffffff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    th, td {
-      border: 2px solid #ffcc80;
-      padding: 8px;
-      font-size: 16px;
-      text-align: left;
-    }
-    th {
-      background-color: #ffeb3b;
-      color: #333;
-    }
-    tr:nth-child(even) { background-color: #fffde7; }
-    tr:hover { background-color: #ffe082; }
-    .stars { font-size: 22px; text-align: left; }
-    .col-no { width: 40px; text-align: center; }
-    .col-name { width: 120px; }
-    .col-stars { width: 60%; }
-    .col-total { width: 50px; text-align: center; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Stars 🌟</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body {
+    font-family: Comic Sans MS, sans-serif;
+    background-color: #fff8e1;
+    text-align: center;
+    padding: 10px;
+  }
+  h1 {
+    color: #ff5722;
+    font-size: 1.8em;
+  }
+  table {
+    border-collapse: collapse;
+    margin: auto;
+    width: 100%;
+    max-width: 600px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  th, td {
+    border: 2px solid #ffcc80;
+    padding: 8px;
+    font-size: 16px;
+  }
+  th {
+    background-color: #ffeb3b;
+    color: #333;
+    text-align: center;
+  }
+  td {
+    text-align: center;
+  }
+  td.stars {
+    text-align: left; /* Align stars to left */
+    font-size: 20px;
+    word-break: break-word;
+  }
+  tr:nth-child(even) {
+    background-color: #fffde7;
+  }
+  tr:hover {
+    background-color: #ffe082;
+  }
+  /* Column widths */
+  th:nth-child(1), td:nth-child(1) { width: 40px; }
+  th:nth-child(2), td:nth-child(2) { width: 30%; text-align: left; }
+  th:nth-child(3), td:nth-child(3) { width: 50%; }
+  th:nth-child(4), td:nth-child(4) { width: 60px; }
+</style>
 </head>
 <body>
-  <h1>🌟 Student Star Points 🌟</h1>
-  <table id="studentTable">
-    <thead>
-      <tr>
-        <th class="col-no">No.</th>
-        <th class="col-name">Name</th>
-        <th class="col-stars">Stars</th>
-        <th class="col-total">Total</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 
-  <script>
-    const sheetID = "1f4qn9xI0iSxyQz_JRuP3RrCuPnXO3BV12KopVKI3qks";
-    const sheetName = "Sheet1";
-    const query = encodeURIComponent("SELECT B");
-    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
+<h1>🌟 Student Star Points 🌟</h1>
+<table id="studentTable">
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Name</th>
+      <th>Stars</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-    fetch(url)
-      .then(res => res.text())
-      .then(data => {
-        const json = JSON.parse(data.substr(47).slice(0, -2));
-        const rows = json.table.rows;
-        const students = [];
+<script>
+const sheetID = "1f4qn9xI0iSxyQz_JRuP3RrCuPnXO3BV12KopVKI3qks";
+const sheetName = "Sheet1";
+const query = encodeURIComponent("SELECT A,B");
+const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
 
-        rows.forEach((row, index) => {
-          const stars = row.c[0]?.v || "";
-          const total = (stars.match(/🌟/g) || []).length;
-          students.push({
-            name: `Student ${index + 1}`,
-            stars: stars,
-            total: total
-          });
-        });
+fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const json = JSON.parse(data.substr(47).slice(0, -2));
+    const rows = json.table.rows;
+    const tbody = document.querySelector("#studentTable tbody");
 
-        students.sort((a, b) => b.total - a.total);
+    let students = [];
 
-        students.forEach((student, index) => {
-          let rankIcon = index + 1;
-          if (index === 0) rankIcon = "🥇";
-          else if (index === 1) rankIcon = "🥈";
-          else if (index === 2) rankIcon = "🥉";
+    rows.forEach((row) => {
+      const name = row.c[0]?.v || "";
+      const stars = row.c[1]?.v || "";
+      const total = (stars.match(/🌟/g) || []).length;
 
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td class="col-no">${rankIcon}</td>
-            <td class="col-name">${student.name}</td>
-            <td class="stars col-stars">${student.stars}</td>
-            <td class="col-total">${student.total}</td>
-          `;
-          document.querySelector("#studentTable tbody").appendChild(tr);
-        });
-      });
-  </script>
+      if (name.trim() !== "") {
+        students.push({ name, stars, total });
+      }
+    });
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(() => console.log('Service Worker Registered'));
-    }
-  </script>
+    // Sort by total stars descending
+    students.sort((a, b) => b.total - a.total);
+
+    students.forEach((student, index) => {
+      let rankDisplay = index + 1;
+      if (index === 0) rankDisplay = "🥇";
+      else if (index === 1) rankDisplay = "🥈";
+      else if (index === 2) rankDisplay = "🥉";
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${rankDisplay}</td>
+        <td>${student.name}</td>
+        <td class="stars">${student.stars}</td>
+        <td>${student.total}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+</script>
+
 </body>
 </html>
