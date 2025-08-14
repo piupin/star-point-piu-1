@@ -15,7 +15,7 @@ const FILES_TO_CACHE = [
 self.addEventListener("install", (evt) => {
   evt.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("[ServiceWorker] Pre-caching offline page");
+      console.log("[ServiceWorker] Pre-caching offline content");
       return cache.addAll(FILES_TO_CACHE);
     })
   );
@@ -44,7 +44,6 @@ self.addEventListener("fetch", (evt) => {
   const sheetBaseURL = "https://docs.google.com/spreadsheets";
 
   if (evt.request.url.includes(sheetBaseURL)) {
-    // Handle Google Sheets data
     evt.respondWith(
       caches.open(DATA_CACHE_NAME).then((cache) => {
         return fetch(evt.request)
@@ -62,7 +61,6 @@ self.addEventListener("fetch", (evt) => {
     return;
   }
 
-  // Default fetch for static files
   evt.respondWith(
     caches.match(evt.request).then((response) => {
       return response || fetch(evt.request);
