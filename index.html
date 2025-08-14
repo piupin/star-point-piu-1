@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Stars</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffeb3b">
+
+  <!-- iOS Support -->
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    body {
+      font-family: Comic Sans MS, sans-serif;
+      background-color: #fff8e1;
+      text-align: center;
+      padding: 10px;
+      margin: 0;
+    }
+    h1 {
+      color: #ff5722;
+      font-size: 1.5em;
+    }
+    table {
+      border-collapse: collapse;
+      margin: auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      width: 100%;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 2px solid #ffcc80;
+      padding: 8px;
+      font-size: 1em;
+    }
+    th {
+      background-color: #ffeb3b;
+      color: #333;
+    }
+    th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; }
+    th:nth-child(2), td:nth-child(2) { width: 80px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    th:nth-child(3), td:nth-child(3) { width: 65%; text-align: left; }
+    th:nth-child(4), td:nth-child(4) { width: 50px; text-align: center; }
+    tr:nth-child(even) { background-color: #fffde7; }
+    tr:hover { background-color: #ffe082; }
+    .stars {
+      font-size: 22px;
+      text-align: left;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌟 Student Star Points 🌟</h1>
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>No.</th>
+        <th>Name</th>
+        <th>Stars</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetID = "1f4qn9xI0iSxyQz_JRuP3RrCuPnXO3BV12KopVKI3qks";
+    const sheetName = "Sheet1";
+    const query = encodeURIComponent("SELECT A,B");
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}&tq=${query}`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(data => {
+        const json = JSON.parse(data.substr(47).slice(0, -2));
+        let rows = json.table.rows;
+
+        let students = rows.map(row => {
+          const name = row.c[0]?.v || "";
+          const stars = row.c[1]?.v || "";
+          const total = (stars.match(/🌟/g) || []).length;
+          return { name, stars, total };
+        });
+
+        // Sort by total stars (desc)
+        students.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+
+        const tbody = document.querySelector("#studentTable tbody");
+        students.forEach((student, index) => {
+          let rank = index + 1;
+          let medal = "";
+          if (rank === 1) medal = "🥇";
+          else if (rank === 2) medal = "🥈";
+          else if (rank === 3) medal = "🥉";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${medal || rank}</td>
+            <td title="${student.name}">${student.name}</td>
+            <td class="stars">${student.stars}</td>
+            <td>${student.total}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
